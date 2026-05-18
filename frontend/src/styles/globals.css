@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles */
+:root {
+  --primary-50: #f0f9ff;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --emergency-500: #ef4444;
+  --emergency-600: #dc2626;
+}
+
+* {
+  @apply border-gray-200 dark:border-gray-800;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50;
+}
+
+/* Utility classes */
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.button-primary {
+  @apply px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 font-medium;
+}
+
+.button-secondary {
+  @apply px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-200 font-medium;
+}
+
+.button-emergency {
+  @apply px-4 py-2 bg-emergency-600 text-white rounded-lg hover:bg-emergency-700 transition-colors duration-200 font-medium animate-pulse-emergency;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm dark:shadow-lg border border-gray-200 dark:border-gray-800 p-6;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-primary {
+  @apply badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300;
+}
+
+.badge-success {
+  @apply badge bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300;
+}
+
+.badge-error {
+  @apply badge bg-emergency-100 dark:bg-emergency-900 text-emergency-700 dark:text-emergency-300;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .container-custom {
+    @apply px-3;
+  }
+}
