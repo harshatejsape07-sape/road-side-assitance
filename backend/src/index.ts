@@ -3,7 +3,8 @@ import 'express-async-errors';
 import helmet from 'helmet';
 import cors from 'cors';
 import { config, connectDatabase, Logger } from '@/config';
-import { errorHandler } from '@/middleware';
+import { errorHandler, rateLimiter } from '@/middleware';
+import authRoutes from '@/routes/authRoutes';
 
 const logger = Logger.getLogger('App');
 
@@ -23,6 +24,9 @@ app.use(
   })
 );
 
+// Rate limiting
+app.use('/api/', rateLimiter);
+
 // Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -36,12 +40,16 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Routes will be added here
+// API Routes
+app.use(`${config.apiPrefix}/auth`, authRoutes);
+
+// Root API endpoint
 app.get('/api/v1', (req, res) => {
   res.json({
     message: 'Road-Side Assistance API v1',
     version: '1.0.0',
     status: 'running',
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -51,6 +59,8 @@ app.use((req, res) => {
     success: false,
     message: 'Route not found',
     path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -63,29 +73,30 @@ const startServer = async () => {
     // Connect to database
     await connectDatabase();
 
-    app.listen(config.port, config.host, () => {
-      logger.info(
-        `✓ Server running on http://${config.host}:${config.port}`
-      );
+    const server = app.listen(config.port, config.host, () => {
+      logger.info(`✓ Server running on http://${config.host}:${config.port}`);
       logger.info(`✓ Environment: ${config.nodeEnv}`);
       logger.info(`✓ API Version: ${config.apiVersion}`);
+      logger.info(`✓ Database: Connected`);
+      logger.info(`✓ Health check: http://${config.host}:${config.port}/health`);
     });
+
+    // Handle graceful shutdown
+    const shutdown = () => {
+      logger.info('Shutting down gracefully...');
+      server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+      });
+    };
+
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };
-
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  process.exit(0);
-});
 
 startServer();
 
