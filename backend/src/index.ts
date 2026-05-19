@@ -5,6 +5,11 @@ import cors from 'cors';
 import { config, connectDatabase, Logger } from '@/config';
 import { errorHandler, rateLimiter } from '@/middleware';
 import authRoutes from '@/routes/authRoutes';
+import mechanicRoutes from '@/routes/mechanicRoutes';
+import vehicleRoutes from '@/routes/vehicleRoutes';
+import requestRoutes from '@/routes/requestRoutes';
+import paymentRoutes from '@/routes/paymentRoutes';
+import reviewRoutes from '@/routes/reviewRoutes';
 
 const logger = Logger.getLogger('App');
 
@@ -37,11 +42,19 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    environment: config.nodeEnv,
   });
 });
 
 // API Routes
-app.use(`${config.apiPrefix}/auth`, authRoutes);
+const apiPrefix = config.apiPrefix;
+
+app.use(`${apiPrefix}/auth`, authRoutes);
+app.use(`${apiPrefix}/mechanics`, mechanicRoutes);
+app.use(`${apiPrefix}/vehicles`, vehicleRoutes);
+app.use(`${apiPrefix}/requests`, requestRoutes);
+app.use(`${apiPrefix}/payments`, paymentRoutes);
+app.use(`${apiPrefix}/reviews`, reviewRoutes);
 
 // Root API endpoint
 app.get('/api/v1', (req, res) => {
@@ -50,6 +63,14 @@ app.get('/api/v1', (req, res) => {
     version: '1.0.0',
     status: 'running',
     timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: `${apiPrefix}/auth`,
+      mechanics: `${apiPrefix}/mechanics`,
+      vehicles: `${apiPrefix}/vehicles`,
+      requests: `${apiPrefix}/requests`,
+      payments: `${apiPrefix}/payments`,
+      reviews: `${apiPrefix}/reviews`,
+    },
   });
 });
 
@@ -77,6 +98,7 @@ const startServer = async () => {
       logger.info(`✓ Server running on http://${config.host}:${config.port}`);
       logger.info(`✓ Environment: ${config.nodeEnv}`);
       logger.info(`✓ API Version: ${config.apiVersion}`);
+      logger.info(`✓ API Prefix: ${apiPrefix}`);
       logger.info(`✓ Database: Connected`);
       logger.info(`✓ Health check: http://${config.host}:${config.port}/health`);
     });
